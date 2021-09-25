@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<title></title>
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="swipe-photo">
+    <ul class="swipe-photo-container clearfix">
+        <li class="swipe-photo-item"><img src="img/0.jpg" class="swipe-photo-thumbnail"></li>
+        <li class="swipe-photo-item"><img src="img/1.jpg" class="swipe-photo-thumbnail"></li>
+        <li class="swipe-photo-item"><img src="img/2.jpg" class="swipe-photo-thumbnail"></li>
+        <li class="swipe-photo-item"><img src="img/3.jpg" class="swipe-photo-thumbnail"></li>
+        <li class="swipe-photo-item"><img src="img/4.jpg" class="swipe-photo-thumbnail"></li>
+        <li class="swipe-photo-item"><img src="img/5.jpg" class="swipe-photo-thumbnail"></li>
+    </ul>
+</div>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript">
+// ここまでたどり着いたあなたは勇者です。
+// 今回やるのはフリックです。
+// 指を動かしている間は .swipe-photo-container が移動し、離したときに一番近い要素の位置までアニメーションします。
+// 挙動はanswerの方を良く見て確認しましょう。
+// x座標の取得方法 
+// function(e) {
+//     e.originalEvent.changedTouches[0].pageX;
+// }
+// onに複数のイベントを貼る方法
+// $(".hoge").on({
+//     "event": function() { },
+//     "event": function() { }
+// });
+// touchstart タッチしたタイミングを取ります。
+// touchmove タッチしたあとの動いてる状態を取ります。(たくさんイベントが発生します。)
+// touchend タッチを離したタイミングを取ります。
+// あとは座標をごにょごにょいじるだけです。配列使います。ちょっと難しいです。
+
+$(function(){
+    var $photo = $(".swipe-photo"),
+        $container = $photo.find(".swipe-photo-container"),
+        $item = $container.find(".swipe-photo-item"),
+        $thumbnail = $item.find(".swipe-photo-thumbnail"),
+        swipePhotoArray = [],
+        thumbnailWidth = $thumbnail.width(),
+        itemLength = $item.length,
+        x = null,
+        posiX = null,
+        startX = null,
+        moveX = null;
+
+    for(var i=0; i<=itemLength; i++){
+        swipePhotoArray[i]=-i*thumbnailWidth;
+    }
+    $container.width(thumbnailWidth*itemLength);
+
+    $item.on({
+        touchstart:function(event) {
+            posiX = parseInt($container.css("left"));
+            startX = event.originalEvent.changedTouches[0].pageX-posiX
+        },
+        touchmove:function(event) {
+            event.preventDefault();
+            x = event.originalEvent.changedTouches[0].pageX;
+
+            if(x - startX >= 0) {
+                moveX = 0
+            }else{
+                if(x - startX <= swipePhotoArray[itemLength-1]) {
+                    moveX = swipePhotoArray[itemLength-1]
+                }else{
+                    moveX = x - startX
+                }
+            }
+            $container.css({left:moveX})
+        },
+        touchend:function(event) {
+            var k = "";
+            for(var i = 0; i<itemLength; i++) {
+                if(swipePhotoArray[i] + (thumbnailWidth/2) > moveX && moveX >= swipePhotoArray[i+1] + (thumbnailWidth/2))
+                {k = i}
+            }
+            $container.animate({left:swipePhotoArray[k]},400)
+        }
+
+    })
+});
+
+</script>
+</body>
+</html>
+
